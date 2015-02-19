@@ -106,17 +106,9 @@
 
         return
 
-
-      _check: (i) ->
-
-        main = pho[i]
-        main.ok = true
-        main.bgSize = window.getComputedStyle(main,false).backgroundSize
+      _imgReady: (main) ->
         actualHeight = screenY
-
-        pho[i].img.onload = ->
-          
-          if main.bgSize == '' or main.bgSize == 'auto'
+        if main.bgSize == '' or main.bgSize == 'auto'
 
             if this.height < main.offsetHeight
               main.ok = false
@@ -146,9 +138,19 @@
 
           #Speed up! - From 0 to 100% of the container
           main.diff = main.diff - (main.offsetHeight * opt.boost)
+        return
 
-          return
+      _check: (i) ->
 
+        main = pho[i]
+        main.ok = true
+        main.bgSize = window.getComputedStyle(main,false).backgroundSize
+        actualHeight = screenY
+
+        if(pho[i].img.complete)
+          this._imgReady(main)
+        else 
+          pho[i].img.onload = this._imgReady(main)
 
         return
 
@@ -175,6 +177,7 @@
             per = (posY - pho[i].offsetTop + screenY ) / (pho[i].offsetHeight + screenY)
 
             # Removes 50% so it shares the scroll between the top and the bottom
+
             position = pho[i].diff * (per - 0.5)
 
             # If it's not cover, center it
